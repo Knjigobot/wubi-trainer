@@ -56,36 +56,55 @@
             };
         }])
 
-        .directive('ngEnter', ['keyEventHandler', 'KEYS', function (keyEventHandler, KEYS) {
+        .directive('ngEnter', ['keyEventHandler', 'KEYS', '$document', function (keyEventHandler, KEYS, $document) {
             return {
                 link: function (scope, element, attrs) {
-                    // element has focus
+                    var safeApply = function (fn) {
+                        var phase = scope.$root ? scope.$root.$$phase : null;
+                        if (phase === '$apply' || phase === '$digest') {
+                            fn();
+                        } else {
+                            scope.$apply(fn);
+                        }
+                    };
 
-                    element.bind("keydown", function (event) {
+                    var onKeyDown = function (event) {
+                        var target = event.target || event.srcElement;
+                        var tag = target && target.tagName ? target.tagName.toLowerCase() : '';
+                        if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+                            return;
+                        }
 
-                        var keyPressed = event.which;
+                        if (!scope.keyboard || scope.keyboard.isFocused === false) {
+                            return;
+                        }
+
+                        var keyPressed = event.which || event.keyCode;
                         if (keyPressed === KEYS.ESC) {
-
-                            scope.$apply(function () {
+                            safeApply(function () {
                                 scope.stopFocusInput();
                             });
                         }
                         else {
                             if (keyPressed === KEYS.SPACE) {
-                                if (scope.keyboard.isFocused) {              // stopfocus input
+                                if (scope.keyboard.isFocused) {
                                     scope.stopFocusInput();
                                 }
                                 else {
                                     scope.startFocusInput();
                                 }
-
                             }
-                            scope.$apply(function () {
+                            safeApply(function () {
                                 keyEventHandler.handle(keyPressed);
                             });
                             event.preventDefault();
-
                         }
+                    };
+
+                    $document.on("keydown", onKeyDown);
+
+                    scope.$on('$destroy', function () {
+                        $document.off("keydown", onKeyDown);
                     });
                 }
             };

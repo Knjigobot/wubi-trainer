@@ -2,7 +2,7 @@ angular.module('feedbackModule', [])
     .factory('feedbackService', ['feedbackChannel', '$log', function (feedbackChannel, $log) {
         var service = {
             showAnswer: false,
-            showKeyBoard: false,
+            showKeyBoard: true,
             revealAnswer: function () {
 
                 this.showAnswer = true;

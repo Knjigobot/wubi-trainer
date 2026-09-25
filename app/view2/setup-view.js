@@ -106,35 +106,32 @@ angular.module('wubi.setupView', ['ngRoute', 'ListMakerModule', 'SelectionModule
         $scope.data.learningQueue = runner.learningQueue;
 
 
-    }]).controller('TabsController', ['$scope', function ($scope) {
+    }]).controller('TabsController', ['$scope', 'runner', function ($scope, runner) {
 
         $scope.tabs = {};
-        $scope.tabs.selectedIndex = 0;           // default view is character components
+        $scope.tabs.selectedIndex = runner.isHanziMode !== false ? 1 : 0;           // default view is hanzis
 
 
     }]).controller('HanziSetupController', ['$scope', 'listMaker', 'dataService', 'runner', 'Hanzi', 'wubiLengthFilter', function ($scope, listMaker, dataService, runner, Hanzi, wubiLength) {
         $scope.hanziData = {};
+        $scope.selectedKeystroke = runner.selectedKeystroke || 4;
+
         dataService.getHanzis().then(function (data) {
 
             $scope.hanziData.fullList = data;
-            //console.log('tet',$scope.hanziData.fullList);
+            $scope.setupHanzis($scope.selectedKeystroke);
         });
 
 
         $scope.setupHanzis = function (keystrokeNumber) {
-
-            var list = $scope.hanziData.fullList.slice(0, 10);
+            $scope.selectedKeystroke = keystrokeNumber;
             var list = $scope.hanziData.fullList;
 
-            //console.log('listlength', list.length);
             list = wubiLength(list, keystrokeNumber);
             $scope.hanziData.selected = list;
 
-            listMaker.selection.random=false;
-            runner.setLearningQueue($scope.hanziData.selected);
-            //console.log(runner.learningQueue[0] instanceof Hanzi);
-
-
+            listMaker.selection.random = false;
+            runner.initHanziQueue($scope.hanziData.selected, keystrokeNumber);
         };
 
     }]).filter('wubiLength', [function () {

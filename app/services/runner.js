@@ -1,7 +1,7 @@
 (function () {
     "use strict";
-    angular.module('RunnerModule', ['DataServicesModule', 'ListMakerModule'])
-        .factory('runner', ['dataService', 'listMaker', '$log', 'tutor', '$location', function (dataService, listMaker, $log, tutor, $location) {
+    angular.module('RunnerModule', ['DataServicesModule', 'ListMakerModule', 'HanziModule'])
+        .factory('runner', ['dataService', 'listMaker', '$log', 'tutor', '$location', 'Hanzi', function (dataService, listMaker, $log, tutor, $location, Hanzi) {
             //var SETUP_VIEW_PATH = 'setup';
 
             var service = {
@@ -10,13 +10,33 @@
                 currentIndex: 0,
                 percent: 0,
                 initialQueueLength: 0,
-
+                isHanziMode: false,
+                selectedKeystroke: 4,
+                fullHanziList: [],
 
                 removeCurrent: function () {
                     this.learningQueue.splice(this.currentIndex, 1);
                 },
 
+                initHanziQueue: function (list, keystrokeNumber) {
+                    this.isHanziMode = true;
+                    this.selectedKeystroke = keystrokeNumber || 4;
+                    this.fullHanziList = angular.copy(list);
+                    this.setLearningQueue(list);
+                },
+
                 refillList: function () {
+                    if (this.isHanziMode && this.fullHanziList && this.fullHanziList.length > 0) {
+                        for (var j = 0; j < this.fullHanziList.length; j++) {
+                            this.learningQueue.push(angular.copy(this.fullHanziList[j]));
+                        }
+                        this.updatePercent();
+                        if (listMaker.selection && listMaker.selection.random) {
+                            this.randomize();
+                        }
+                        return;
+                    }
+
                     var list = listMaker.makeListFromSelectionObject();
                     if (list.length === 0) {
                         throw "RUNNER_HAS_EMPTY_REFILL_LIST";
@@ -37,6 +57,12 @@
                 },
 
                 setLearningQueue: function (list) {
+                    if (list && list.length > 0 && list[0] instanceof Hanzi) {
+                        this.isHanziMode = true;
+                        this.fullHanziList = angular.copy(list);
+                    } else if (list && list.length > 0 && !(list[0] instanceof Hanzi)) {
+                        this.isHanziMode = false;
+                    }
                     this.learningQueue = list;
                     this.initialQueueLength = list.length;
                     this.updatePercent();

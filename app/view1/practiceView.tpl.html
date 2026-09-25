@@ -7,14 +7,11 @@
 
     </div>
 
-    <md-button ng-click="toggleRight()" class="md-primary">
-        show character help
-    </md-button>
     <div ng-controller="PromptController">
 
-        <div layout="row" layout-align="center center" ng-controller="KeyBoardInput">
+        <div ng-controller="KeyBoardInput" ng-enter>
 
-            <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right" ng-enter>
+            <md-sidenav class="md-sidenav-right md-whiteframe-z2" md-component-id="right">
                 <md-toolbar class="md-theme-light">
                     <h1 class="md-toolbar-tools">Character Help</h1>
                 </md-toolbar>
@@ -22,14 +19,15 @@
                     <md-button ng-click="close()" class="md-primary">
                         Close
                     </md-button>
-                    <div ng-if="isHanzi(data.promptCharacter)" >
-
-                    the wubi code of this character is:
-                        <div style="font-size: 33px;">
-
-                    {{data.promptCharacter.wubiCode[0]}}
+                    <div ng-if="isHanzi(data.promptCharacter)" class="wubi-help-section">
+                        <div class="wubi-help-squares">
+                            <div ng-repeat="letter in getWubiKeys(data.promptCharacter) track by $index" class="wubi-help-square-col">
+                                <div class="wubi-help-square" ng-class="{'key-pressed': $index < tutor.inputSequence.length}">
+                                    <img ng-src="img/keys/key_{{letter}}.png" alt="{{letter.toUpperCase()}}"/>
+                                </div>
+                                <div class="wubi-key-indicator" ng-class="{'active': $index < tutor.inputSequence.length}"></div>
+                            </div>
                         </div>
-
                     </div>
                     <div ng-if="!isHanzi(data.promptCharacter)">
                         <div>
@@ -51,28 +49,6 @@
 
                 </md-content>
             </md-sidenav>
-            <md-button class="md-raised md-warn" ng-click="startFocusInput()" ng-hide="keyboard.isFocused"
-                    >Start Typing
-
-            </md-button>
-
-            <md-button class="md-primary" ng-click="stopFocusInput()" ng-show="keyboard.isFocused"
-                    > Pause
-
-            </md-button>
-
-
-            <div flex="50" class="focus-prompt" ng-enter="prompt()" tabindex="1"
-                 ng-focus="keyboard.isFocused= true"
-                 ng-blur="keyboard.isFocused= false"
-                 sync-focus-with="keyboard.isFocused"
-
-                    >
-
-
-            </div>
-            <div class="icon icon-hardware-black-ic_keyboard_black_24dp " ng-show="keyboard.isFocused"></div>
-
 
         </div>
 
@@ -106,16 +82,11 @@
 
                 <img ng-src="img/hanzi/{{data.promptCharacter.character}}" alt="" class="keyboard-layout"
                      ng-class="{warningIndicator: data.showWarning}"
-                     style="width:50px"/>
+                     style="width:90px"/>
 
                 </span>
-                <span ng-if="isHanzi(data.promptCharacter)" style="font-size: 33px;">
+                <span ng-if="isHanzi(data.promptCharacter)" style="font-size: 60px; line-height: 1.1;">
                     {{data.promptCharacter.character}}
-                    <!--
-                    {{data.promptCharacter.wubiCode}}
-                      -->
-
-                    {{input.inputSequence}}
                 </span>
 
 
@@ -125,7 +96,7 @@
             <div>
 
                 <section layout="row" layout-sm="column" layout-align="center center">
-                    <div style="width:200px; height:30px">
+                    <div style="width:200px; height:14px; margin-top: 4px;">
 
 
                         <md-progress-linear md-theme="blue" md-mode="determinate"
@@ -133,9 +104,9 @@
                     </div>
                 </section>
 
-                <div layout="row" layout-align="center center" style="height: 50px">
+                <div layout="row" layout-align="center center" ng-show="display.showCorrectAnswer" style="min-height: 35px">
                     <div flex="20"></div>
-                    <div ng-show="display.showCorrectAnswer" flex="50" class="correction-hint">
+                    <div flex="50" class="correction-hint">
                         Sorry that was wrong
                         <span ng-if="!isHanzi(data.promptCharacter)">
 
@@ -148,6 +119,17 @@
                 </div>
             </div>
 
+            <!-- Always-on character help squares directly between prompt and keyboard -->
+            <div class="wubi-help-inbetween" ng-if="getWubiKeys(data.promptCharacter).length > 0">
+                <div class="wubi-help-squares">
+                    <div ng-repeat="letter in getWubiKeys(data.promptCharacter) track by $index" class="wubi-help-square-col">
+                        <div class="wubi-help-square" ng-class="{'key-pressed': $index < tutor.inputSequence.length}">
+                            <img ng-src="img/keys/key_{{letter}}.png" alt="{{letter.toUpperCase()}}"/>
+                        </div>
+                        <div class="wubi-key-indicator" ng-class="{'active': $index < tutor.inputSequence.length}"></div>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
@@ -156,19 +138,11 @@
     <div ng-show="display.showGroup"> {{data.promptCharacter.group}}</div>
 
 
-    <md-whiteframe class="md-whiteframe-z1" layout layout-align="center center">
+    <md-whiteframe class="md-whiteframe-z1" layout layout-align="center center" ng-show="display.showKeyBoard">
     <span>
-        <img ng-show="display.showKeyBoard" src="img/wubi86.jpg" alt="" class="keyboard-layout"/>
+        <img src="img/wubi86_custom.jpg" alt="Wubi 86 Keyboard Layout" class="keyboard-layout"/>
         </span>
     </md-whiteframe>
-
-
-    <div ng-show="!display.showKeyBoard"/>
-    <div ng-show="keyboard.isFocused" layout="row" layout-align="center center" class="hint">
-
-        Hint: Press ENTER to show/hide the wubi keyboard layout <br/>
-        Press SPACE to show/hide the help for the current character component
-    </div>
 </div>
 
 

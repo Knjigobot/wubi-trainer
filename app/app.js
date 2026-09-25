@@ -14,7 +14,7 @@ angular.module('wubi', [
 
 ]).
     config(['$routeProvider', function ($routeProvider) {
-        $routeProvider.otherwise({redirectTo: '/setup'});
+        $routeProvider.otherwise({redirectTo: '/practice'});
     }])
     .config(function (localStorageServiceProvider) {
         localStorageServiceProvider

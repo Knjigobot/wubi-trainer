@@ -45,43 +45,52 @@
                     }
                 },
                 checkHanzi: function (number) {
-                    console.log(this.solution.wubiCode);
-                    console.log(number);
-
                     this.promptNext = false;
                     try {
-
-                        console.log(this.keyCodes[number].letter);
-
-                        this.inputSequence += this.keyCodes[number].letter.trim();
-                        console.log(this.inputSequence);
-                        if (this.solution.wubiCode[0].indexOf(this.inputSequence) !== 0) {
-                            this.inputSequence = '';
-                            var result = {answer: 'wrong'};
-                                                              feedbackService.processResult(result);
-
+                        if (!this.keyCodes || !this.keyCodes[number]) {
+                            return;
                         }
-                        if (this.solution.wubiCode[0] === this.inputSequence) {
-                            console.log('correct');
+
+                        var letter = this.keyCodes[number].letter.trim().toLowerCase();
+                        this.inputSequence += letter;
+
+                        var codes = angular.isArray(this.solution.wubiCode) ? this.solution.wubiCode : [this.solution.wubiCode];
+                        var anyMatch = false;
+                        var exactMatch = false;
+
+                        for (var i = 0; i < codes.length; i++) {
+                            var code = (codes[i] || '').toLowerCase();
+                            if (code.indexOf(this.inputSequence) === 0) {
+                                anyMatch = true;
+                            }
+                            if (code === this.inputSequence) {
+                                exactMatch = true;
+                                break;
+                            }
+                        }
+
+                        if (!anyMatch) {
+                            this.inputSequence = '';
+                            this.wrongAnswerGiven = true;
+                            var result = {answer: 'wrong'};
+                            feedbackService.processResult(result);
+                            return false;
+                        }
+
+                        if (exactMatch) {
                             this.currentCharacter.readyToRemove = true;
                             this.currentCharacter.status = ST_CORRECT;
                             this.promptNext = true;
                             this.inputSequence = '';
                             var result = {answer: ST_CORRECT};
                             feedbackService.processResult(result);
-
                             return true;
-
                         }
-
                     }
-                    catch
-                        (e) {
-                        $log.info('no keycode');
+                    catch (e) {
+                        $log.info('no keycode', e);
                     }
-
-                }
-                ,
+                },
                 checkComponent: function (number) {
                     var result = {
                         status: null,

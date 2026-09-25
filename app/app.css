@@ -1,8 +1,11 @@
 img.keyboard-layout {
   width: 800px;
+  max-width: 95vw;
+  height: auto;
 }
 .prompt {
   text-align: center;
+  margin-top: 28px;
 }
 .startme {
   border: red;
@@ -42,25 +45,25 @@ img.keyboard-layout {
   align-items: center;
 }
 .signal-container {
-  positon: relative;
+  position: relative;
   width: 200px;
-  height: 50px;
+  height: 0;
 }
 .correctAnswer {
-  float: right;
-  top: -50px;
+  position: absolute;
+  right: -60px;
+  top: 15px;
   z-index: 1000;
-  left: 600px;
-  font-size: 50px;
+  font-size: 38px;
   color: #008000;
   font-weight: bolder;
 }
 .wrongAnswer {
-  float: left;
-  top: -50px;
+  position: absolute;
+  left: -60px;
+  top: 15px;
   z-index: 1000;
-  left: 400px;
-  font-size: 50px;
+  font-size: 38px;
   color: red;
   font-weight: bolder;
 }
@@ -96,3 +99,78 @@ img.keyboard-layout {
 .lookup-wubi {
   font-weight: bolder;
 }
+
+md-sidenav.md-sidenav-right {
+  width: 540px !important;
+  max-width: 95vw !important;
+}
+
+.wubi-help-inbetween {
+  margin: 4px auto 10px auto;
+  text-align: center;
+}
+
+.wubi-help-section {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.wubi-help-squares {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  padding: 6px 0;
+  flex-wrap: wrap;
+}
+
+.wubi-help-square {
+  display: inline-block;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  line-height: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wubi-help-square:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.20);
+}
+
+.wubi-help-square img {
+  width: 108px;
+  height: 110px;
+  display: block;
+  border-radius: 4px;
+}
+
+.wubi-help-square-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wubi-key-indicator {
+  width: 90px;
+  height: 5px;
+  border-radius: 3px;
+  margin-top: 3px;
+  background: rgba(0, 0, 0, 0.07);
+  transition: none !important;
+}
+
+.wubi-key-indicator.active {
+  background: #43A047;
+  box-shadow: 0 1px 4px rgba(67, 160, 71, 0.5);
+  transition: none !important;
+}
+
+.wubi-help-square.key-pressed {
+  box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+  transition: none !important;
+}
+
+
+

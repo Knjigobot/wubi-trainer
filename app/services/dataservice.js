@@ -121,31 +121,39 @@ angular.module('DataServicesModule', ['LocalStorageModule', 'CharacterModule', '
                         this.cache = characterArray;
 
                         deferred.resolve(this.localData);
-
-                        $location.path('/setup');
                     }));
                 }
                 return deferred.promise;
             },
             getHanzis: function () {
-                deferred = $q.defer();
+                var deferred = $q.defer();
+                if (this.parsedHanzis && this.parsedHanzis.length > 0) {
+                    deferred.resolve(this.parsedHanzis);
+                    return deferred.promise;
+                }
+
                 var hanzis = [];
-
-
                 $http.get('view1/hanzis.json').then(angular.bind(this, function (response) {
-
-                    this.hanziList = hanziList = response.data;
-                    //hanziList =[{character: '是', wubiCode: ['abcd']}, {character: '不', wubiCode: ['uu']}];
+                    var hanziList = response.data;
                     angular.forEach(hanziList, function (hanzi) {
-
                         hanzis.push(new Hanzi(hanzi));
                     });
                     hanzis.reverse();  // sorted most common first
+                    this.parsedHanzis = hanzis;
                     deferred.resolve(hanzis);
-
-
                 }));
                 return deferred.promise;
+            },
+            getHanzisByLength: function (keystrokeNumber) {
+                return this.getHanzis().then(function (hanzis) {
+                    var filtered = [];
+                    for (var i = 0; i < hanzis.length; i++) {
+                        if (hanzis[i].wubiCode && hanzis[i].wubiCode[0] && hanzis[i].wubiCode[0].length === keystrokeNumber) {
+                            filtered.push(hanzis[i]);
+                        }
+                    }
+                    return filtered;
+                });
             },
 
             getDict: function () {
@@ -194,4 +202,15 @@ angular.module('DataServicesModule', ['LocalStorageModule', 'CharacterModule', '
         return service;
 
     }])
-;
+    .filter('wubiLength', [function () {
+        return function (input, keystrokeNumber) {
+            if (!input || !angular.isArray(input)) return [];
+            var copy = [];
+            for (var i = 0; i < input.length; i++) {
+                if (input[i].wubiCode && input[i].wubiCode[0] && input[i].wubiCode[0].length === keystrokeNumber) {
+                    copy.push(input[i]);
+                }
+            }
+            return copy;
+        };
+    }]);

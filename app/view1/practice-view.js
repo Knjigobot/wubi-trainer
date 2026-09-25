@@ -14,6 +14,14 @@
 
                         return dataService.getKeyCodes();
 
+                    },
+                    queueInit: function (dataService, runner) {
+                        if (!runner.learningQueue || runner.learningQueue.length === 0) {
+                            return dataService.getHanzisByLength(4).then(function (fours) {
+                                runner.initHanziQueue(fours, 4);
+                                return fours;
+                            });
+                        }
                     }
 
                 }

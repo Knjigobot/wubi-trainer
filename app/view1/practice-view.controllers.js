@@ -6,7 +6,7 @@
 
             // display keyboard hint
             $scope.keyboard = {
-                isFocused: false
+                isFocused: true
             };
 
             $scope.show = function (message) {
@@ -57,7 +57,7 @@
 
             /// from hanzi
             $scope.display = {};
-            $scope.display = {showKeyBoard: false};
+            $scope.display = {showKeyBoard: true};
 
 
             this.toggleKeyBoard = function () {
@@ -99,7 +99,7 @@
         }])
 
 
-        .controller('PromptController', ['$scope', 'runner', '$log', '$timeout', 'CHARACTER_GROUPS', 'Hanzi', 'tutor', function ($scope, runner, $log, $timeout, CHARACTER_GROUPS, Hanzi, tutor) {
+        .controller('PromptController', ['$scope', 'runner', '$log', '$timeout', 'CHARACTER_GROUPS', 'Hanzi', 'tutor', 'dataService', function ($scope, runner, $log, $timeout, CHARACTER_GROUPS, Hanzi, tutor, dataService) {
             // reflect the data changes in the model
             //--------------- set group symbol on scope : content of sidebar via scope inheritance
             $scope.setCharacterGroupSymbol = function (groupName) {
@@ -124,6 +124,17 @@
             $scope.isHanzi = function (obj) {
                 return obj instanceof Hanzi;
             };
+            $scope.getWubiKeys = function (char) {
+                if (!char) return [];
+                if (char.wubiCode && char.wubiCode[0]) {
+                    return char.wubiCode[0].trim().toLowerCase().split('');
+                }
+                if (char.key) {
+                    return [char.key.trim().toLowerCase()];
+                }
+                return [];
+            };
+            $scope.tutor = tutor;
             $scope.input = {inputSequence: tutor.inputSequence};
 
             $scope.$watch(function () {
@@ -142,12 +153,20 @@
             $scope.data.promptCharacter = runner.getCurrent();
             $scope.data.percent = runner.getProgressPercent();
 
-            if ($scope.data.promptCharacter) {
+            if ($scope.data.promptCharacter && $scope.data.promptCharacter.group) {
                 $scope.setCharacterGroupSymbol($scope.data.promptCharacter.group);
             }
 
             if (!$scope.data.promptCharacter) {
-                $scope.showAlert();
+                dataService.getHanzisByLength(4).then(function (fours) {
+                    runner.initHanziQueue(fours, 4);
+                    runner.start();
+                    $scope.data.promptCharacter = runner.getCurrent();
+                    $scope.data.percent = runner.getProgressPercent();
+                    if (!$scope.data.promptCharacter) {
+                        $scope.showAlert();
+                    }
+                });
             }
 
             $scope.$watch(angular.bind(runner, runner.getCurrent), function (nv, ov) {
@@ -175,6 +194,10 @@
         .controller('RightSideNavController', ['$scope', '$mdSidenav', function ($scope, $mdSidenav) {
             $scope.close = function () {
                 $mdSidenav('right').toggle();
+            };
+            $scope.getWubiKeys = function (char) {
+                if (!char || !char.wubiCode || !char.wubiCode[0]) return [];
+                return char.wubiCode[0].trim().toLowerCase().split('');
             };
         }])
 
